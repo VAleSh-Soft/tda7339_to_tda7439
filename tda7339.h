@@ -60,26 +60,26 @@ void receiveInput()
   uint8_t x = Wire.read();
   if (x >> 5 == 0x07)
   {
-    Serial.print("input: ");
+    TDA_PRINT(F("New input: "));
     switch (x)
     {
     case 0xEE:
-      Serial.println(1);
+      TDA_PRINTLN(1);
       tda7439.setInput(INPUT_1);
       break;
     case 0xEA:
-      Serial.println(2);
+      TDA_PRINTLN(2);
       tda7439.setInput(INPUT_2);
       break;
     case 0xE6:
-      Serial.println(3);
+      TDA_PRINTLN(3);
       tda7439.setInput(INPUT_3);
       break;
     }
   }
   else
   {
-    Serial.println("unknown input data??");
+    TDA_PRINTLN(F("unknown input data??"));
   }
 }
 
@@ -92,7 +92,7 @@ void receiveVolume()
 
   if (!((x << 7) & 0x00) && !((y << 7) & 0x01))
   {
-    Serial.print("volume: ");
+    TDA_PRINT(F("New volume set: "));
     x = x >> 1;
     y = y >> 1;
     if (x == 0)
@@ -130,18 +130,19 @@ void receiveVolume()
           vol = 0;
           break;
         default:
-          Serial.println("unknown volume data??");
+          TDA_PRINTLN(F("unknown volume data??"));
+          vol = 0;
           return;
         }
       }
     }
 
-    Serial.println(vol);
+    TDA_PRINTLN(vol);
     tda7439.setVolume(vol * 3 / 2);
   }
   else
   {
-    Serial.println("unknown volume data??");
+    TDA_PRINTLN(F("unknown volume data??"));
   }
 }
 
@@ -151,33 +152,33 @@ void _setEq(uint8_t e)
   switch (e >> 5)
   {
   case 0x04:
-    Serial.print("  treble: ");
+    TDA_PRINT(F("  treble: "));
     band = TREBBLE;
     break;
   case 0x05:
-    Serial.print("  middle: ");
+    TDA_PRINT(F("  middle: "));
     band = MIDDLE;
     break;
   case 0x06:
-    Serial.print("  bass:   ");
+    TDA_PRINT(F("  bass:   "));
     band = BASS;
     break;
   default:
-    Serial.print("unknown eq data?? - ");
-    Serial.println(e);
+    TDA_PRINT(F("  unknown eq data?? - "));
+    TDA_PRINTLN(e);
     return;
   }
   e = e << 3;
   e = e >> 3;
-  Serial.print(" - ");
+  TDA_PRINT(F(" - "));
   int8_t x = (e <= 15) ? e/2 : ((e - 16) * -1) / 2;
-  tda7439.setSnd(x, band);
-  Serial.println(x);
+  tda7439.setTimbre(x, band);
+  TDA_PRINTLN(x);
 }
 
 void receiveEq()
 {
-  Serial.println("equaliser");
+  TDA_PRINTLN(F("New equaliser set"));
   uint8_t x = Wire.read();
   uint8_t y = Wire.read();
   uint8_t z = Wire.read();
