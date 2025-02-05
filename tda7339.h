@@ -11,9 +11,26 @@
 
 TDA7439 tda7439;
 
+TDA7439_input tda7439_input = INPUT_1;
+uint8_t tda7439_volume = 0;
+int8_t tda7439_trebble = 0;
+int8_t tda7439_middle = 0;
+int8_t tda7439_bass = 0;
+
+enum TDA7439_output
+{
+  NO_SET,
+  INPUT_SET,
+  VOLUME_SET,
+  EQ_SET
+};
+
+TDA7439_output tda7439_output = NO_SET;
+
 // ===================================================
 
 void tda7339_init(uint8_t _addr = 0x42);
+void tda7339_tick();
 void receiveEvent(int howMany);
 void receiveInput();
 void receiveVolume();
@@ -23,9 +40,32 @@ void receiveEq();
 
 void tda7339_init(uint8_t _addr)
 {
+  tda7439.begin();
   Wire.begin(_addr);
   Wire.onReceive(receiveEvent);
-  tda7439.begin();
+}
+
+void tda7339_tick()
+{
+  switch (tda7439_output)
+  {
+  case INPUT_SET:
+    tda7439.setInput(tda7439_input);
+    tda7439_output = NO_SET;
+    break;
+  case VOLUME_SET:
+    tda7439.setVolume(tda7439_volume);
+    tda7439_output = NO_SET;
+    break;
+  case EQ_SET:
+    tda7439.setTimbre(tda7439_trebble, TREBBLE);
+    tda7439.setTimbre(tda7439_middle, MIDDLE);
+    tda7439.setTimbre(tda7439_bass, BASS);
+    tda7439_output = NO_SET;
+    break;
+  case NO_SET:
+    break;
+  }
 }
 
 void receiveEvent(int howMany)
@@ -60,20 +100,21 @@ void receiveInput()
   uint8_t x = Wire.read();
   if (x >> 5 == 0x07)
   {
+    tda7439_output = INPUT_SET;
     TDA_PRINT(F("New input: "));
     switch (x)
     {
     case 0xEE:
       TDA_PRINTLN(1);
-      tda7439.setInput(INPUT_1);
+      tda7439_input = INPUT_1;
       break;
     case 0xEA:
       TDA_PRINTLN(2);
-      tda7439.setInput(INPUT_2);
+      tda7439_input = INPUT_2;
       break;
     case 0xE6:
       TDA_PRINTLN(3);
-      tda7439.setInput(INPUT_3);
+      tda7439_input = INPUT_3;
       break;
     }
   }
@@ -138,7 +179,8 @@ void receiveVolume()
     }
 
     TDA_PRINTLN(vol);
-    tda7439.setVolume(vol * 3 / 2);
+    tda7439_volume = vol * 3 / 2;
+    tda7439_output = VOLUME_SET;
   }
   else
   {
@@ -148,31 +190,30 @@ void receiveVolume()
 
 void _setEq(uint8_t e)
 {
-  TDA7439_bands band;
-  switch (e >> 5)
+  uint8_t band = e >> 5;
+  e = e << 3;
+  e = e >> 3;
+  int8_t x = (e <= 15) ? e / 2 : ((e - 16) * -1) / 2;
+
+  switch (band)
   {
   case 0x04:
-    TDA_PRINT(F("  treble: "));
-    band = TREBBLE;
+    TDA_PRINT(F("  treble: - "));
+    tda7439_trebble = x;
     break;
   case 0x05:
-    TDA_PRINT(F("  middle: "));
-    band = MIDDLE;
+    TDA_PRINT(F("  middle: - "));
+    tda7439_middle = x;
     break;
   case 0x06:
-    TDA_PRINT(F("  bass:   "));
-    band = BASS;
+    TDA_PRINT(F("  bass:   - "));
+    tda7439_bass = x;
     break;
   default:
     TDA_PRINT(F("  unknown eq data?? - "));
     TDA_PRINTLN(e);
     return;
   }
-  e = e << 3;
-  e = e >> 3;
-  TDA_PRINT(F(" - "));
-  int8_t x = (e <= 15) ? e/2 : ((e - 16) * -1) / 2;
-  tda7439.setTimbre(x, band);
   TDA_PRINTLN(x);
 }
 
@@ -185,4 +226,5 @@ void receiveEq()
   _setEq(x);
   _setEq(y);
   _setEq(z);
+  tda7439_output = EQ_SET;
 }

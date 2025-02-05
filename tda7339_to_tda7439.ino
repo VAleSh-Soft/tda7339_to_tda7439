@@ -15,4 +15,6 @@ void setup()
 }
 
 void loop()
-{}
+{
+  tda7339_tick();
+}
