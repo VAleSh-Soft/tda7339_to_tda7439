@@ -1,4 +1,5 @@
 #pragma once
+#include "tda7439.h"
 
 // ===================================================
 
@@ -14,3 +15,24 @@
 #define TDA_PRINTLN(x)
 #define TDA_PRINT(x)
 #endif
+
+// ===================================================
+
+TDA7439 tda7439;
+
+TDA7439_input tda7439_input = INPUT_1;
+uint8_t tda7439_volume = 0;
+uint8_t tda7439_att = 0;
+int8_t tda7439_trebble = 0;
+int8_t tda7439_middle = 0;
+int8_t tda7439_bass = 0;
+
+enum TDA7439_output
+{
+  NO_SET,
+  INPUT_SET,
+  VOLUME_SET,
+  EQ_SET
+};
+
+TDA7439_output tda7439_output = NO_SET;

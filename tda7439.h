@@ -101,6 +101,7 @@ TDA7439::TDA7439() {}
 
 void TDA7439::begin()
 {
+  Wire1.setClock(100000);
   Wire1.begin();
 }
 
@@ -124,8 +125,12 @@ void TDA7439::setVolume(uint8_t volume)
   {
     volume = TDA7439_MUTE;
   }
+  else
+  {
+    volume = 48 - volume;
+  }
 
-  writeWire(TDA7439_VOLUME, (48 - volume));
+  writeWire(TDA7439_VOLUME, (volume));
 }
 
 void TDA7439::setTimbre(int8_t val, TDA7439_bands range)
@@ -168,8 +173,8 @@ void TDA7439::writeWire(uint8_t reg, uint8_t data)
     Wire1.write(reg);
     Wire1.write(data);
   }
-  else
-  {
-    TDA_PRINTLN(F("TDA7439::writeWire() failed"));
-  }
+  // else
+  // {
+  //   TDA_PRINTLN(F("TDA7439::writeWire() failed"));
+  // }
 }
