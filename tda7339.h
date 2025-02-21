@@ -24,8 +24,7 @@ void tda7339_init(uint8_t _addr)
 {
   tda7439.begin();
   tda7439.setVolume(24);
-  tda7439.spkAtt(30, 30);
-  // tda7439.setInput(INPUT_4);
+  tda7439.spkAtt(0, 0);
   Wire.begin(_addr);
   Wire.onReceive(receiveEvent);
 }

@@ -5,15 +5,14 @@
 
 #define TDA7439_address 0x44
 
-#define TDA7439_INPUT_SEL 0x00
-#define TDA7439_INPUT_GAIN 0x01
-#define TDA7439_VOLUME 0x02
-#define TDA7439_BASS 0x03
-#define TDA7439_MIDDLE 0x04
-#define TDA7439_TREBBLE 0x05
-
-#define TDA7439_RATT 0x06
-#define TDA7439_LATT 0x07
+#define TDA7439_INPUT_SEL 0x00  // 0b00000000
+#define TDA7439_INPUT_GAIN 0x01 // 0b00000001
+#define TDA7439_VOLUME 0x02     // 0b00000010
+#define TDA7439_BASS 0x03       // 0b00000011
+#define TDA7439_MIDDLE 0x04     // 0b00000100
+#define TDA7439_TREBBLE 0x05    // 0b00000101
+#define TDA7439_RATT 0x06       // 0b00000110
+#define TDA7439_LATT 0x07       // 0b00000111
 
 // выбор входного канала
 enum TDA7439_input : uint8_t
@@ -173,8 +172,8 @@ void TDA7439::writeWire(uint8_t reg, uint8_t data)
     Wire1.write(reg);
     Wire1.write(data);
   }
-  // else
-  // {
-  //   TDA_PRINTLN(F("TDA7439::writeWire() failed"));
-  // }
+  else
+  {
+    TDA_PRINTLN(F("TDA7439::writeWire() failed"));
+  }
 }
