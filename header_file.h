@@ -22,7 +22,7 @@ TDA7439 tda7439;
 
 TDA7439_input tda7439_input = INPUT_1;
 uint8_t tda7439_volume = 0;
-uint8_t tda7439_att = 0;
+// uint8_t tda7439_att = 0;
 int8_t tda7439_trebble = 0;
 int8_t tda7439_middle = 0;
 int8_t tda7439_bass = 0;

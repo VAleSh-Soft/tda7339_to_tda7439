@@ -39,7 +39,7 @@ void tda7339_tick()
     break;
   case VOLUME_SET:
     tda7439.setVolume(tda7439_volume);
-    tda7439.spkAtt(tda7439_att, tda7439_att);
+    // tda7439.spkAtt(tda7439_att, tda7439_att);
     tda7439_output = NO_SET;
     break;
   case EQ_SET:
@@ -120,58 +120,16 @@ void receiveVolume()
   {
     TDA_PRINT(F("New volume set: "));
     x = x >> 1;
-    tda7439_volume = (x == 56 || x == 63) ? TDA7439_MUTE : 48 - x;
-    TDA_PRINTLN(tda7439_volume);
-    TDA_PRINT(F("New attenuate set: "));
     y = y >> 1;
-    tda7439_att = 79 - y;
-    TDA_PRINTLN(tda7439_att);
+    uint8_t v = (x + y) / 2;
+    if ((x + y) % 2 > 0)
+    {
+      v++;
+    }
+
+    tda7439_volume = (v == 0x3F) ? TDA7439_MUTE : 47 - v;
+    TDA_PRINTLN(tda7439_volume);
     tda7439_output = VOLUME_SET;
-
-    //   if (x == 0)
-    //   {
-    //     if (y <= 4)
-    //     {
-    //       vol = 32 - y;
-    //     }
-    //     else if (y <= 32)
-    //     {
-    //       vol = 28 - (y - 4) / 2;
-    //     }
-    //     else
-    //     {
-    //       vol = 14 - (y - 32) / 3;
-    //     }
-    //   }
-    //   else
-    //   {
-    //     if (x <= 18)
-    //     {
-    //       vol = 9 - x / 3;
-    //     }
-    //     else
-    //     {
-    //       switch (x)
-    //       {
-    //       case 24:
-    //         vol = 2;
-    //         break;
-    //       case 34:
-    //         vol = 1;
-    //         break;
-    //       case 63:
-    //         vol = 0;
-    //         break;
-    //       default:
-    //         TDA_PRINTLN(F("unknown volume data??"));
-    //         vol = 0;
-    //         return;
-    //       }
-    //     }
-    //   }
-
-    // tda7439_volume = vol * 3 / 2;
-    // tda7439_output = VOLUME_SET;
   }
   else
   {

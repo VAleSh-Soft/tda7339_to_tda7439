@@ -1,16 +1,22 @@
 #pragma once
 
 #include <Wire1.h>
-#include "tda7339_to_tda7439.h"
+#include <Arduino.h>
+#include "header_file.h"
 
+#define I2C_PORT Wire1 // используемый I2C-интерфейс для управления TDA7439
+
+// 7-битный адрес микросхемы на шине I2C
 #define TDA7439_address 0x44
 
+// Sub addresses
 #define TDA7439_INPUT_SEL 0x00  // 0b00000000
 #define TDA7439_INPUT_GAIN 0x01 // 0b00000001
 #define TDA7439_VOLUME 0x02     // 0b00000010
 #define TDA7439_BASS 0x03       // 0b00000011
 #define TDA7439_MIDDLE 0x04     // 0b00000100
 #define TDA7439_TREBBLE 0x05    // 0b00000101
+
 #define TDA7439_RATT 0x06       // 0b00000110
 #define TDA7439_LATT 0x07       // 0b00000111
 
@@ -31,9 +37,13 @@ enum TDA7439_bands : uint8_t
   TREBBLE = 0x05 // высокие частоты
 };
 
-#define TDA7439_MUTE 0x38 // Mute main volume
+// TDA7439 диапазон предусиления на входе, db (с шагом 2db)
+// 0x00 .. 0x0F
 
-#include <Arduino.h>
+// TDA7439 диапазон громкости (-db)
+// 0x00 .. 0x2F
+#define TDA7439_MUTE 0x38 // отключение звука (mute_flag)
+
 class TDA7439
 {
 public:
@@ -66,7 +76,7 @@ public:
   /**
    * @brief установка громкости
    *
-   * @param volume уровень громкости; 0..48 (0db..-47db, с шагом 1db)
+   * @param volume уровень громкости; 0..47 (0db..-47db, с шагом 1db)
    */
   void setVolume(uint8_t volume);
 
@@ -96,12 +106,13 @@ private:
   void writeWire(uint8_t reg, uint8_t data);
 };
 
+// ===================================================
+
 TDA7439::TDA7439() {}
 
 void TDA7439::begin()
 {
-  Wire1.setClock(100000);
-  Wire1.begin();
+	I2C_PORT.begin();
 }
 
 void TDA7439::setInput(TDA7439_input input)
@@ -120,23 +131,13 @@ void TDA7439::setInputGain(uint8_t gain)
 
 void TDA7439::setVolume(uint8_t volume)
 {
-  if (volume == 0 || volume > 48)
-  {
-    volume = TDA7439_MUTE;
-  }
-  else
-  {
-    volume = 48 - volume;
-  }
-
-  writeWire(TDA7439_VOLUME, (volume));
+	volume = (volume) ? ((volume <= 47) ? 47 - volume : 0) : TDA7439_MUTE;
+	writeWire(TDA7439_VOLUME, volume);
 }
 
 void TDA7439::setTimbre(int8_t val, TDA7439_bands range)
 {
-  val = (val < -7) ? -7
-                   : ((val > 7) ? 7
-                                : val);
+	val = (val < -7) ? -7 : ((val > 7) ? 7 : val);
   val = (val > 0) ? 15 - val : val + 7;
   writeWire((uint8_t)range, val);
 }
@@ -165,15 +166,13 @@ void TDA7439::spkAtt(uint8_t att_r, uint8_t att_l)
 
 void TDA7439::writeWire(uint8_t reg, uint8_t data)
 {
-  Wire1.beginTransmission(TDA7439_address);
-  if (Wire1.endTransmission() == 0)
-  {
-    Wire1.beginTransmission(TDA7439_address);
-    Wire1.write(reg);
-    Wire1.write(data);
+	I2C_PORT.beginTransmission(TDA7439_address);
+	I2C_PORT.write(reg);
+	I2C_PORT.write(data);
+	I2C_PORT.endTransmission();
   }
-  else
-  {
-    TDA_PRINTLN(F("TDA7439::writeWire() failed"));
-  }
-}
+
+// ===================================================
+
+TDA7439 tda;
+
