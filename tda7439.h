@@ -17,8 +17,8 @@
 #define TDA7439_MIDDLE 0x04     // 0b00000100
 #define TDA7439_TREBBLE 0x05    // 0b00000101
 
-#define TDA7439_RATT 0x06       // 0b00000110
-#define TDA7439_LATT 0x07       // 0b00000111
+#define TDA7439_RATT 0x06 // 0b00000110
+#define TDA7439_LATT 0x07 // 0b00000111
 
 // выбор входного канала
 enum TDA7439_input : uint8_t
@@ -112,7 +112,7 @@ TDA7439::TDA7439() {}
 
 void TDA7439::begin()
 {
-	I2C_PORT.begin();
+  I2C_PORT.begin();
 }
 
 void TDA7439::setInput(TDA7439_input input)
@@ -131,13 +131,13 @@ void TDA7439::setInputGain(uint8_t gain)
 
 void TDA7439::setVolume(uint8_t volume)
 {
-	volume = (volume) ? ((volume <= 47) ? 47 - volume : 0) : TDA7439_MUTE;
-	writeWire(TDA7439_VOLUME, volume);
+  volume = (volume) ? ((volume <= 47) ? 47 - volume : 0) : TDA7439_MUTE;
+  writeWire(TDA7439_VOLUME, volume);
 }
 
 void TDA7439::setTimbre(int8_t val, TDA7439_bands range)
 {
-	val = (val < -7) ? -7 : ((val > 7) ? 7 : val);
+  val = (val < -7) ? -7 : ((val > 7) ? 7 : val);
   val = (val > 0) ? 15 - val : val + 7;
   writeWire((uint8_t)range, val);
 }
@@ -166,13 +166,16 @@ void TDA7439::spkAtt(uint8_t att_r, uint8_t att_l)
 
 void TDA7439::writeWire(uint8_t reg, uint8_t data)
 {
-	I2C_PORT.beginTransmission(TDA7439_address);
-	I2C_PORT.write(reg);
-	I2C_PORT.write(data);
-	I2C_PORT.endTransmission();
+  I2C_PORT.beginTransmission(TDA7439_address);
+  if (I2C_PORT.endTransmission() == 0)
+  {
+    I2C_PORT.beginTransmission(TDA7439_address);
+    I2C_PORT.write(reg);
+    I2C_PORT.write(data);
+    I2C_PORT.endTransmission();
   }
+}
 
 // ===================================================
 
 TDA7439 tda;
-

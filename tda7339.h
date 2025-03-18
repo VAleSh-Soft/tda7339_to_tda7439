@@ -7,6 +7,7 @@
 #pragma once
 
 #include <Wire.h>
+#include "header_file.h"
 #include "tda7439.h"
 
 // ===================================================
@@ -23,8 +24,8 @@ void receiveEq();
 void tda7339_init(uint8_t _addr)
 {
   tda7439.begin();
-  tda7439.setVolume(24);
   tda7439.spkAtt(0, 0);
+  tda7439.setInputGain(5);
   Wire.begin(_addr);
   Wire.onReceive(receiveEvent);
 }
@@ -126,8 +127,7 @@ void receiveVolume()
     {
       v++;
     }
-
-    tda7439_volume = (v == 0x3F) ? TDA7439_MUTE : 47 - v;
+    tda7439_volume = (v == 0x3F) ? 0 : 47 - v;
     TDA_PRINTLN(tda7439_volume);
     tda7439_output = VOLUME_SET;
   }
