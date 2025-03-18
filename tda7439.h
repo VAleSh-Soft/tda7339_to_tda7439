@@ -131,7 +131,7 @@ void TDA7439::setInputGain(uint8_t gain)
 
 void TDA7439::setVolume(uint8_t volume)
 {
-  volume = (volume) ? ((volume <= 47) ? 47 - volume : 0) : TDA7439_MUTE;
+  volume = (volume > 47) ? TDA7439_MUTE : volume;
   writeWire(TDA7439_VOLUME, volume);
 }
 

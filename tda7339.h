@@ -24,8 +24,13 @@ void receiveEq();
 void tda7339_init(uint8_t _addr)
 {
   tda7439.begin();
-  tda7439.spkAtt(0, 0);
-  tda7439.setInputGain(5);
+  tda7439.spkAtt(15, 15);
+  tda7439.setInputGain(0);
+  // при старте установка эквалайзера - rock
+  tda7439.setTimbre(4, BASS);
+  tda7439.setTimbre(-1, MIDDLE);
+  tda7439.setTimbre(3, TREBBLE);
+
   Wire.begin(_addr);
   Wire.onReceive(receiveEvent);
 }
@@ -40,7 +45,6 @@ void tda7339_tick()
     break;
   case VOLUME_SET:
     tda7439.setVolume(tda7439_volume);
-    // tda7439.spkAtt(tda7439_att, tda7439_att);
     tda7439_output = NO_SET;
     break;
   case EQ_SET:
@@ -115,19 +119,10 @@ void receiveVolume()
   uint8_t x = Wire.read();
   uint8_t y = Wire.read();
 
-  // uint8_t vol = 0;
-
   if (!((x << 7) & 0x00) && !((y << 7) & 0x01))
   {
     TDA_PRINT(F("New volume set: "));
-    x = x >> 1;
-    y = y >> 1;
-    uint8_t v = (x + y) / 2;
-    if ((x + y) % 2 > 0)
-    {
-      v++;
-    }
-    tda7439_volume = (v == 0x3F) ? 0 : 47 - v;
+    tda7439_volume = ((x >> 1) + (y >> 1)) / 2;
     TDA_PRINTLN(tda7439_volume);
     tda7439_output = VOLUME_SET;
   }
@@ -137,7 +132,7 @@ void receiveVolume()
   }
 }
 
-void _setEq(uint8_t e)
+static void _setEq(uint8_t e)
 {
   uint8_t band = e >> 5;
   e = e << 3;
