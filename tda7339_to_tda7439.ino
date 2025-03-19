@@ -5,15 +5,6 @@
 // ===================================================
 
 #if USE_EXTERNAL_SOUND_SOURCE
-void btnCheck()
-{
-  if (mp3Btn.getButtonState() == BTN_DOWN)
-  {
-    int_inputs_state = !int_inputs_state;
-    changeInput4State();
-  }
-}
-
 void changeInput4State()
 {
   EEPROM.update(EEPROM_INDEX_FOR_INPUT_STATE, int_inputs_state);
@@ -23,6 +14,7 @@ void changeInput4State()
   if (!int_inputs_state)
   {
     // активируем четвертый вход
+    tda7439.setVolume(TDA7439_MUTE);
     tda7439.setInput(INPUT_4);
     // выставляем средний уровень по всем полосам эквалайзера, пускай этим рулит внешний источник
     tda7439.setTimbre(0, BASS);
@@ -31,11 +23,13 @@ void changeInput4State()
     // подобрать в ходе работы
     tda7439.setInputGain(0);
     tda7439.spkAtt(15, 15);
+    tda7439.setVolume(tda7439_volume);
     TDA_PRINTLN(F("External sound source activated"));
-}
+  }
   else
   {
     // активируем работу от внутренних источников звука
+    tda7439.setVolume(TDA7439_MUTE);
     tda7439.setInput(tda7439_input);
     tda7439.setTimbre(tda7439_bass, BASS);
     tda7439.setTimbre(tda7439_middle, MIDDLE);
@@ -72,6 +66,11 @@ void loop()
   tda7339_tick();
 
 #if USE_EXTERNAL_SOUND_SOURCE
-  void btnCheck();
+  // работаем с кнопкой
+  if (mp3Btn.getButtonState() == BTN_DOWN)
+  {
+    int_inputs_state = !int_inputs_state;
+    changeInput4State();
+  }
 #endif
 }

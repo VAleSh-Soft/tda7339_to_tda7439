@@ -10,9 +10,9 @@
 // ===================================================
 #if USE_EXTERNAL_SOUND_SOURCE
 
-constexpr uint8_t BUTTON_PIN = 5; // пин для подключения кнопки
-constexpr uint8_t RLED_PIN = 6;   // пин для подключения красного светодиода
-constexpr uint8_t GLED_PIN = 7;   // пин для подключения зеленого светодиода
+constexpr uint8_t BUTTON_PIN = PIN_PD5; // пин для подключения кнопки
+constexpr uint8_t RLED_PIN = PIN_PD6;   // пин для подключения красного светодиода
+constexpr uint8_t GLED_PIN = PIN_PD7;   // пин для подключения зеленого светодиода
 
 constexpr uint16_t EEPROM_INDEX_FOR_INPUT_STATE = 10; // индекс в EEPROM для хранения текущего режима работы муз.центра - внутренний/внешний источник звука
 
@@ -57,8 +57,6 @@ shButton mp3Btn(BUTTON_PIN);
 
 bool int_inputs_state = true; // true - внутренние источники звука, false - внешний источник звука
 
-// работа с кнопкой
-void btnCheck();
 // изменение состояния четвертого входа tda7439 - активен/неактивен
 void changeInput4State();
 
