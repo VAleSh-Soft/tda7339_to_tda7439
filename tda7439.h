@@ -76,7 +76,7 @@ public:
   /**
    * @brief установка громкости
    *
-   * @param volume уровень громкости; 0..47 (0db..-47db, с шагом 1db)
+   * @param volume уровень громкости; 0..47; 0 - максимальная громкость, 47 - звук отключен
    */
   void setVolume(uint8_t volume);
 
@@ -87,12 +87,6 @@ public:
    * @param range диапазон - BASS, MIDDLE, TREBBLE
    */
   void setTimbre(int8_t val, TDA7439_bands range);
-
-  /**
-   * @brief отключение звука
-   *
-   */
-  void mute();
 
   /**
    * @brief установка баланса
@@ -142,15 +136,8 @@ void TDA7439::setTimbre(int8_t val, TDA7439_bands range)
   writeWire((uint8_t)range, val);
 }
 
-void TDA7439::mute()
-{
-  writeWire(TDA7439_VOLUME, TDA7439_MUTE);
-}
-
 void TDA7439::spkAtt(uint8_t att_r, uint8_t att_l)
 {
-  // Mainly used to override the default attenuation of mute at power up
-  // can be used for balance with some simple code changes here.
   if (att_l > 79)
   {
     att_l = 79;

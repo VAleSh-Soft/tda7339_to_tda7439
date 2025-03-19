@@ -25,11 +25,20 @@ void tda7339_init(uint8_t _addr)
 {
   tda7439.begin();
   tda7439.spkAtt(15, 15);
-  tda7439.setInputGain(0);
+
+#if USE_EXTERNAL_SOUND_SOURCE
+  // активировать активный в момент отключения муз.центра источник звука - внешний (вход 4)/внутренний
+  changeInput4State();
+#else
   // при старте установка эквалайзера - rock
   tda7439.setTimbre(4, BASS);
   tda7439.setTimbre(-1, MIDDLE);
   tda7439.setTimbre(3, TREBBLE);
+
+  tda7439.setInput(INPUT_1);
+  tda7439.setInputGain(0);
+  tda7439.setVolume(30);
+#endif
 
   Wire.begin(_addr);
   Wire.onReceive(receiveEvent);
@@ -40,7 +49,12 @@ void tda7339_tick()
   switch (tda7439_output)
   {
   case INPUT_SET:
-    tda7439.setInput(tda7439_input);
+#if USE_EXTERNAL_SOUND_SOURCE
+    if (int_inputs_state)
+#endif
+    {
+      tda7439.setInput(tda7439_input);
+    }
     tda7439_output = NO_SET;
     break;
   case VOLUME_SET:
@@ -48,9 +62,14 @@ void tda7339_tick()
     tda7439_output = NO_SET;
     break;
   case EQ_SET:
-    tda7439.setTimbre(tda7439_trebble, TREBBLE);
-    tda7439.setTimbre(tda7439_middle, MIDDLE);
-    tda7439.setTimbre(tda7439_bass, BASS);
+#if USE_EXTERNAL_SOUND_SOURCE
+    if (int_inputs_state)
+#endif
+    {
+      tda7439.setTimbre(tda7439_trebble, TREBBLE);
+      tda7439.setTimbre(tda7439_middle, MIDDLE);
+      tda7439.setTimbre(tda7439_bass, BASS);
+    }
     tda7439_output = NO_SET;
     break;
   case NO_SET:
