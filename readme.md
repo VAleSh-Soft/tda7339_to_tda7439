@@ -120,6 +120,12 @@
 
 ![alt text](docs/0006.png)
 
+Печатные платы в формате PDF, отзеркаленные для ЛУТ
+
+[PCB_tda7339_to_tda7439](docs/PCB_PCB_tda7339_to_tda7439_ver.3_lut.zip)
+
+[PCB_tda7439_adapter](docs/PCB_PCB_tda7439_adapter_lut.zip)
+
 ### Настройка скетча
 
 Все настройки скетча собраны в файле **header.h**.
