@@ -44,7 +44,7 @@ void tda7339_init(uint8_t _addr)
   tda7439.setTimbre(-1, MIDDLE);
   tda7439.setTimbre(3, TREBBLE);
 
-  tda7439.setNewInput(INPUT_1);
+  setNewInput(INPUT_1);
 #endif
 
   TDA7339_I2C_PORT.begin(_addr);
@@ -90,7 +90,7 @@ void tda7339_tick()
     tda7439_output = NO_SET;
     return;
   case NO_SET:
-  return;
+    return;
   }
 }
 
@@ -113,9 +113,13 @@ void setNewInput(TDA7439_input input)
     _gain = INPUT3_GAIN;
     _att = INPUT3_ATT;
     break;
+#if USE_EXTERNAL_SOUND_SOURCE
   case INPUT_4:
     _gain = INPUT4_GAIN;
     _att = INPUT4_ATT;
+    break;
+#endif
+  default:
     break;
   }
 
@@ -185,7 +189,7 @@ void receiveVolume()
     {
       tda7439_volume = TDA7439_MUTE;
     }
-    
+
     TDA_PRINTLN(tda7439_volume);
     tda7439_output = VOLUME_SET;
   }
