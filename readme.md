@@ -112,7 +112,7 @@
 
 Принципиальная схема
 
-![alt text](docs/Schematic_tda7439_adapter_2025-03-21.png)
+![alt text](docs/Schematic_tda7439_adapter.png)
 
 Все вместе выглядит примерно так
 
