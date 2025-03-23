@@ -1,10 +1,17 @@
 #pragma once
 
-#include <Wire1.h>
 #include <Arduino.h>
 #include "header_file.h"
 
-#define I2C_PORT Wire1 // используемый I2C-интерфейс для управления TDA7439
+#ifndef TDA7439_I2C_PORT
+#define TDA7439_I2C_PORT Wire1
+#endif
+
+#if TDA7439_I2C_PORT == Wire1
+#include <Wire1.h>
+#else
+#include <Wire.h>
+#endif
 
 // 7-битный адрес микросхемы на шине I2C
 #define TDA7439_address 0x44
@@ -37,11 +44,6 @@ enum TDA7439_bands : uint8_t
   TREBBLE = 0x05 // высокие частоты
 };
 
-// TDA7439 диапазон предусиления на входе, db (с шагом 2db)
-// 0x00 .. 0x0F
-
-// TDA7439 диапазон громкости (-db)
-// 0x00 .. 0x2F
 #define TDA7439_MUTE 0x38 // отключение звука (mute_flag)
 
 class TDA7439
@@ -106,7 +108,7 @@ TDA7439::TDA7439() {}
 
 void TDA7439::begin()
 {
-  I2C_PORT.begin();
+  TDA7439_I2C_PORT.begin();
 }
 
 void TDA7439::setInput(TDA7439_input input)
@@ -153,13 +155,13 @@ void TDA7439::spkAtt(uint8_t att_r, uint8_t att_l)
 
 void TDA7439::writeWire(uint8_t reg, uint8_t data)
 {
-  I2C_PORT.beginTransmission(TDA7439_address);
-  if (I2C_PORT.endTransmission() == 0)
+  TDA7439_I2C_PORT.beginTransmission(TDA7439_address);
+  if (TDA7439_I2C_PORT.endTransmission() == 0)
   {
-    I2C_PORT.beginTransmission(TDA7439_address);
-    I2C_PORT.write(reg);
-    I2C_PORT.write(data);
-    I2C_PORT.endTransmission();
+    TDA7439_I2C_PORT.beginTransmission(TDA7439_address);
+    TDA7439_I2C_PORT.write(reg);
+    TDA7439_I2C_PORT.write(data);
+    TDA7439_I2C_PORT.endTransmission();
   }
 }
 

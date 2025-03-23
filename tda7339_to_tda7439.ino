@@ -13,30 +13,25 @@ void changeInput4State()
 
   if (!int_inputs_state)
   {
-    // активируем четвертый вход
     tda7439.setVolume(TDA7439_MUTE);
-    tda7439.setInput(INPUT_4);
     // выставляем средний уровень по всем полосам эквалайзера, пускай этим рулит внешний источник
     tda7439.setTimbre(0, BASS);
     tda7439.setTimbre(0, MIDDLE);
     tda7439.setTimbre(0, TREBBLE);
-    // подобрать в ходе работы
-    tda7439.setInputGain(0);
-    tda7439.spkAtt(15, 15);
-    tda7439.setVolume(tda7439_volume);
+    // активируем четвертый вход
+    setNewInput(INPUT_4);
     TDA_PRINTLN(F("External sound source activated"));
   }
   else
   {
     // активируем работу от внутренних источников звука
     tda7439.setVolume(TDA7439_MUTE);
-    tda7439.setInput(tda7439_input);
     tda7439.setTimbre(tda7439_bass, BASS);
     tda7439.setTimbre(tda7439_middle, MIDDLE);
     tda7439.setTimbre(tda7439_trebble, TREBBLE);
-    tda7439.setVolume(tda7439_volume);
-    tda7439.setInputGain(0);
-    tda7439.spkAtt(15, 15);
+
+    setNewInput(tda7439_input);
+
     tda7439_output = NO_SET;
     TDA_PRINTLN(F("External sound source inactive"));
   }
