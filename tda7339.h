@@ -39,6 +39,7 @@ void tda7339_init(uint8_t _addr)
 
 #if USE_EXTERNAL_SOUND_SOURCE
   // активировать активный в момент отключения муз.центра источник звука - внешний (вход 4)/внутренний
+  changeSoundSettings(INPUT_4, 2);
   changeInput4State();
 #else
   // при старте установка эквалайзера - rock
@@ -96,41 +97,24 @@ void tda7339_tick()
   }
 }
 
-void setNewInput(TDA7439_input input)
+void setNewInput(TDA7439_input _input)
 {
-  uint8_t _gain = 0;
-  uint8_t _att = 0;
-  uint8_t _vol = tda7439_volume;
+  changeSoundSettings(_input, 2);
 
-  switch (input)
-  {
-  case INPUT_1:
-    _gain = INPUT1_GAIN;
-    _att = INPUT1_ATT;
-    break;
-  case INPUT_2:
-    _gain = INPUT2_GAIN;
-    _att = INPUT2_ATT;
-    break;
-  case INPUT_3:
-    _gain = INPUT3_GAIN;
-    _att = INPUT3_ATT;
-    break;
+  uint8_t _vol = tda7439_volume;
 #if USE_EXTERNAL_SOUND_SOURCE
-  case INPUT_4:
-    _gain = INPUT4_GAIN;
-    _att = INPUT4_ATT;
+  if (_input == INPUT_4)
+  {
     _vol = tda7439_volume_in4;
-    break;
-#endif
-  default:
-    break;
   }
+#endif
+
+  getSoundSettings(_input);
 
   tda7439.setVolume(TDA7439_MUTE);
-  tda7439.setInputGain(_gain);
-  tda7439.spkAtt(_att, _att);
-  tda7439.setInput(input);
+  tda7439.setInputGain(cur_input_gain);
+  tda7439.spkAtt(cur_input_att, cur_input_att);
+  tda7439.setInput(_input);
   tda7439.setVolume(_vol);
 }
 
