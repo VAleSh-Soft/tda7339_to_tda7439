@@ -91,11 +91,7 @@ void ledsGuard()
 uint8_t _get_sound_settings_from_eeprom(TDA7439_input _input)
 {
   int8_t _set = EEPROM.read(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input);
-  Serial.print("_set: ");
-  Serial.print(_set);
-  Serial.print("(");
-  Serial.print(EEPROM.read(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input));
-  Serial.println(")");
+
   if (_set < -60 || _set > 15)
   {
     _set = -15;
@@ -129,7 +125,12 @@ void changeSoundSettings(TDA7439_input _input, uint8_t _reset)
   int8_t _set = _get_sound_settings_from_eeprom(_input);
 
   cur_input_gain = (_set > 0) ? _set : 0;
-  cur_input_att = (_set < 0) ? _set : 0;
+  cur_input_att = (_set < 0) ? (-1 * _set) : 0;
+
+  TDA_PRINT(F("New Input Gain: "));
+  TDA_PRINTLN(cur_input_gain);
+  TDA_PRINT(F("New Input Att: "));
+  TDA_PRINTLN(cur_input_att);
 }
 
 void getSoundSettings(TDA7439_input _input)
