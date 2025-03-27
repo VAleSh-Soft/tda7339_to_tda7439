@@ -62,6 +62,8 @@ int8_t tda7439_bass = 0;
 uint8_t tda7439_volume_in4 = tda7439_volume;
 #endif
 
+bool service_mode = false; // флаг включения сервисного режима регулировки громкости
+
 enum TDA7439_output
 {
   NO_SET,

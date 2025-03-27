@@ -42,6 +42,12 @@ void setup()
   Serial.begin(DEBUG_BAUD_COUNT);
 #endif
 
+  service_mode = !digitalRead(BUTTON_PIN);
+
+  mp3Btn.setVirtualClickOn();
+  mp3Btn.setTimeoutOfDblClick(100);
+  mp3Btn.setLongClickMode(LCM_CONTINUED);
+
 #if USE_EXTERNAL_SOUND_SOURCE
   pinMode(RLED_PIN, OUTPUT);
   pinMode(GLED_PIN, OUTPUT);
@@ -62,16 +68,44 @@ void loop()
   if (millis() - led_timer >= 50)
   {
     led_timer = millis();
-    digitalWrite(RLED_PIN, int_inputs_state);
-    digitalWrite(GLED_PIN, !int_inputs_state);
+    uint8_t rled_state = int_inputs_state;
+    uint8_t gled_state = !rled_state;
+
+    if (service_mode)
+    {
+      // в сервисном режиме светодиоды мигают с частотой 1 Гц
+      static uint8_t num = 0;
+
+      if (num >= 10)
+      {
+        rled_state = LOW;
+        gled_state = LOW;
+      }
+
+      if (++num >= 20)
+      {
+        num = 0;
+      }
+    }
+
+    digitalWrite(RLED_PIN, rled_state);
+    digitalWrite(GLED_PIN, gled_state);
   }
 
 #if USE_EXTERNAL_SOUND_SOURCE
   // работаем с кнопкой
-  if (mp3Btn.getButtonState() == BTN_DOWN)
+  switch (mp3Btn.getButtonState())
   {
+  case BTN_ONECLICK:
     int_inputs_state = !int_inputs_state;
     changeInput4State();
+    break;
+  case BTN_LONGCLICK:
+    if (service_mode)
+    {
+      /* code */
+    }
+    break;
   }
 #endif
 }
