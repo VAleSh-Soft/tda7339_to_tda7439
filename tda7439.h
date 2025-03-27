@@ -96,7 +96,7 @@ public:
    * @param att_r правый канал; 0..79 (0db..-79db, с шагом 1db)
    * @param att_l левый канал; 0..79 (0db..-79db, с шагом 1db)
    */
-  void spkAtt(uint8_t att_r, uint8_t att_l);
+  void spkAtt(uint8_t _att);
 
 private:
   void writeWire(uint8_t reg, uint8_t data);
@@ -138,19 +138,15 @@ void TDA7439::setTimbre(int8_t val, TDA7439_bands range)
   writeWire((uint8_t)range, val);
 }
 
-void TDA7439::spkAtt(uint8_t att_r, uint8_t att_l)
+void TDA7439::spkAtt(uint8_t _att)
 {
-  if (att_l > 79)
+  if (_att > 79)
   {
-    att_l = 79;
-  }
-  if (att_r > 79)
-  {
-    att_r = 79;
+    _att = 79;
   }
 
-  writeWire(TDA7439_RATT, att_r);
-  writeWire(TDA7439_LATT, att_l);
+  writeWire(TDA7439_RATT, _att);
+  writeWire(TDA7439_LATT, _att);
 }
 
 void TDA7439::writeWire(uint8_t reg, uint8_t data)

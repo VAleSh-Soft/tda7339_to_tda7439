@@ -24,7 +24,7 @@ constexpr uint16_t EEPROM_INDEX_FOR_INPUT_STATE = 10; // индекс в EEPROM 
 
 constexpr uint16_t EEPROM_INDEX_FOR_SOUND_SETTINGS = 11; // индекс в EEPROM для хранения данных коррекции громкости звука для входов; uint8_t x 4
 constexpr uint16_t EEPROM_INDEX_FOR_VALIDATE_FLAG = 9;   // индекс в EEPROM для хранения флага о том, что параметры звука сохранены и записаны в EEPROM; uint8_t
-constexpr uint8_t VALIDATE_FLAG = 0X2F;                  // значение флага
+constexpr uint8_t VALIDATE_FLAG = 0X3F;                  // значение флага
 
 /* 
  * данные настройки звука по входам по умолчанию; значения в пределах -60..15;

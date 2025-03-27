@@ -47,7 +47,14 @@ void checkButton()
   case BTN_LONGCLICK:
     if (service_mode)
     {
-      changeSoundSettings(tda7439_input);
+      if (int_inputs_state)
+      {
+        changeSoundSettings(tda7439_input);
+      }
+      else
+      {
+        changeSoundSettings(INPUT_4);
+      }
     }
     break;
   case BTN_UP:
@@ -94,7 +101,7 @@ uint8_t _get_sound_settings_from_eeprom(TDA7439_input _input)
 
   if (_set < -60 || _set > 15)
   {
-    _set = -15;
+    _set = sound_data[(uint8_t)_input];
     EEPROM.update(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input, _set);
   }
 
@@ -124,8 +131,31 @@ void changeSoundSettings(TDA7439_input _input, uint8_t _reset)
 
   int8_t _set = _get_sound_settings_from_eeprom(_input);
 
+  int8_t _step = (_set >= 0) ? 1 : 2;
+  if (!_data._dir)
+  {
+    _step = -1 * _step;
+  }
+
+  _set += _step;
+
+  if (_set > 15)
+  {
+    _set = 15;
+  }
+  else if (_set < -60)
+  {
+    _set = -60;
+  }
+
+  EEPROM.update(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input, _set);
+
   cur_input_gain = (_set > 0) ? _set : 0;
   cur_input_att = (_set < 0) ? (-1 * _set) : 0;
+
+
+  tda7439.setInputGain(cur_input_gain);
+  tda7439.spkAtt(cur_input_att);
 
   TDA_PRINT(F("New Input Gain: "));
   TDA_PRINTLN(cur_input_gain);
@@ -152,14 +182,9 @@ void setup()
   Serial.begin(DEBUG_BAUD_COUNT);
 #endif
 
-  service_mode = !digitalRead(BUTTON_PIN);
-
-  mp3Btn.setVirtualClickOn();
-  mp3Btn.setTimeoutOfDblClick(100);
-  mp3Btn.setLongClickMode(LCM_CONTINUED);
-
   if (EEPROM.read(EEPROM_INDEX_FOR_VALIDATE_FLAG) != VALIDATE_FLAG)
   {
+    // валидация данных в EEPROM
     EEPROM.write(EEPROM_INDEX_FOR_VALIDATE_FLAG, VALIDATE_FLAG);
     for (uint8_t i = 0; i < 4; i++)
     {
@@ -172,7 +197,15 @@ void setup()
   pinMode(GLED_PIN, OUTPUT);
 
   int_inputs_state = EEPROM.read(EEPROM_INDEX_FOR_INPUT_STATE);
+
+  service_mode = !digitalRead(BUTTON_PIN);
+
+  mp3Btn.setVirtualClickOn();
+  mp3Btn.setTimeoutOfDblClick(100);
+  mp3Btn.setLongClickMode(LCM_CLICKSERIES);
+  mp3Btn.setIntervalOfSerial(500);
 #endif
+
   tda7339_init();
 
   TDA_PRINTLN(F("Start device"));

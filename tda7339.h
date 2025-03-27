@@ -113,7 +113,7 @@ void setNewInput(TDA7439_input _input)
 
   tda7439.setVolume(TDA7439_MUTE);
   tda7439.setInputGain(cur_input_gain);
-  tda7439.spkAtt(cur_input_att, cur_input_att);
+  tda7439.spkAtt(cur_input_att);
   tda7439.setInput(_input);
   tda7439.setVolume(_vol);
 }
