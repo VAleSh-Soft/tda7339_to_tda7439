@@ -8,8 +8,6 @@
 void changeInput4State()
 {
   EEPROM.update(EEPROM_INDEX_FOR_INPUT_STATE, int_inputs_state);
-  digitalWrite(RLED_PIN, int_inputs_state);
-  digitalWrite(GLED_PIN, !int_inputs_state);
 
   if (!int_inputs_state)
   {
@@ -59,6 +57,14 @@ void setup()
 void loop()
 {
   tda7339_tick();
+
+  static uint32_t led_timer = 0;
+  if (millis() - led_timer >= 50)
+  {
+    led_timer = millis();
+    digitalWrite(RLED_PIN, int_inputs_state);
+    digitalWrite(GLED_PIN, !int_inputs_state);
+  }
 
 #if USE_EXTERNAL_SOUND_SOURCE
   // работаем с кнопкой

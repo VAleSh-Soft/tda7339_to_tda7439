@@ -19,6 +19,8 @@
 #include <Wire.h>
 #endif
 
+#define TDA7339_MUTE 0x3F
+
 // ===================================================
 
 void tda7339_init(uint8_t _addr = 0x42);
@@ -66,7 +68,7 @@ void tda7339_tick()
     return;
   case VOLUME_SET:
 #if USE_EXTERNAL_SOUND_SOURCE && NO_MUTE_FOR_INPUT4
-    if (!int_inputs_state && (tda7439_volume == TDA7439_MUTE || tda7439_volume == 0x3F))
+    if (!int_inputs_state && (tda7439_volume == TDA7439_MUTE || tda7439_volume == TDA7339_MUTE))
     {
       tda7439_output = NO_SET;
       return;
@@ -98,6 +100,7 @@ void setNewInput(TDA7439_input input)
 {
   uint8_t _gain = 0;
   uint8_t _att = 0;
+  uint8_t _vol = tda7439_volume;
 
   switch (input)
   {
@@ -117,6 +120,7 @@ void setNewInput(TDA7439_input input)
   case INPUT_4:
     _gain = INPUT4_GAIN;
     _att = INPUT4_ATT;
+    _vol = tda7439_volume_in4;
     break;
 #endif
   default:
@@ -127,7 +131,7 @@ void setNewInput(TDA7439_input input)
   tda7439.setInputGain(_gain);
   tda7439.spkAtt(_att, _att);
   tda7439.setInput(input);
-  tda7439.setVolume(tda7439_volume);
+  tda7439.setVolume(_vol);
 }
 
 void receiveEvent(int howMany)
@@ -185,10 +189,17 @@ void receiveVolume()
   {
     TDA_PRINT(F("New volume set: "));
     tda7439_volume = ((x >> 1) + (y >> 1)) / 2;
-    if (tda7439_volume == 0x3F)
+    if (tda7439_volume == TDA7339_MUTE)
     {
       tda7439_volume = TDA7439_MUTE;
     }
+
+#if USE_EXTERNAL_SOUND_SOURCE
+    if (tda7439_volume != TDA7439_MUTE)
+    {
+      tda7439_volume_in4 = tda7439_volume;
+    }
+#endif
 
     TDA_PRINTLN(tda7439_volume);
     tda7439_output = VOLUME_SET;

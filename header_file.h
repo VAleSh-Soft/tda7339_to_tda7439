@@ -6,7 +6,7 @@
 #define USE_DEBUG_OUT 0             // включить вывод отладочной информации через UART
 #define DEBUG_BAUD_COUNT 9600       // скорость интерфейса UART
 #define USE_EXTERNAL_SOUND_SOURCE 1 // использовать дополнительный источник звука, например mp3-модуль, на четвертом входе TDA7439; 0 - не использовать, 1 - использовать
-#define NO_MUTE_FOR_INPUT4 0        // не пропускать сигнал MUTE от центрального процессора, если активен четвертый вход
+#define NO_MUTE_FOR_INPUT4 1        // не пропускать сигнал MUTE от центрального процессора, если активен четвертый вход
 
 #define TDA7339_I2C_PORT Wire  // I2C-интефейс для получения команд от центрального процессора
 #define TDA7439_I2C_PORT Wire1 // I2C-интефейс для работы с tda7439
@@ -57,6 +57,10 @@ uint8_t tda7439_volume = 15;
 int8_t tda7439_trebble = 0;
 int8_t tda7439_middle = 0;
 int8_t tda7439_bass = 0;
+
+#if USE_EXTERNAL_SOUND_SOURCE
+uint8_t tda7439_volume_in4 = tda7439_volume;
+#endif
 
 enum TDA7439_output
 {
