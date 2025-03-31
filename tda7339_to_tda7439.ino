@@ -99,7 +99,7 @@ uint8_t _get_sound_settings_from_eeprom(TDA7439_input _input)
 {
   int8_t _set = EEPROM.read(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input);
 
-  if (_set < -60 || _set > 15)
+  if (_set < MAX_ATT_DATA || _set > MAX_GAIN_DATA)
   {
     _set = sound_data[(uint8_t)_input];
     EEPROM.update(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input, _set);
@@ -139,13 +139,13 @@ void changeSoundSettings(TDA7439_input _input, uint8_t _reset)
 
   _set += _step;
 
-  if (_set > 15)
+  if (_set > MAX_GAIN_DATA)
   {
-    _set = 15;
+    _set = MAX_GAIN_DATA;
   }
-  else if (_set < -60)
+  else if (_set < MAX_ATT_DATA)
   {
-    _set = -60;
+    _set = MAX_ATT_DATA;
   }
 
   EEPROM.update(EEPROM_INDEX_FOR_SOUND_SETTINGS + (uint8_t)_input, _set);
