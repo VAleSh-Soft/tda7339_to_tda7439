@@ -99,10 +99,11 @@ void tda7339_tick()
 
 void setNewInput(TDA7439_input _input)
 {
-  changeSoundSettings(_input, 2);
-
   uint8_t _vol = tda7439_volume;
+
 #if USE_EXTERNAL_SOUND_SOURCE
+  changeSoundSettings(_input, 2);
+  
   if (_input == INPUT_4)
   {
     _vol = tda7439_volume_in4;

@@ -93,7 +93,6 @@ void ledsGuard()
     digitalWrite(GLED_PIN, gled_state);
   }
 }
-#endif
 
 uint8_t _get_sound_settings_from_eeprom(TDA7439_input _input)
 {
@@ -153,7 +152,6 @@ void changeSoundSettings(TDA7439_input _input, uint8_t _reset)
   cur_input_gain = (_set > 0) ? _set : 0;
   cur_input_att = (_set < 0) ? (-1 * _set) : 0;
 
-
   tda7439.setInputGain(cur_input_gain);
   tda7439.spkAtt(cur_input_att);
 
@@ -163,9 +161,15 @@ void changeSoundSettings(TDA7439_input _input, uint8_t _reset)
   TDA_PRINTLN(cur_input_att);
 }
 
+#endif
+
 void getSoundSettings(TDA7439_input _input)
 {
+#if USE_EXTERNAL_SOUND_SOURCE
   int8_t _set = _get_sound_settings_from_eeprom(_input);
+#else
+  int8_t _set = sound_data[(uint8_t)_input];
+#endif
 
   cur_input_gain = (_set > 0) ? _set : 0;
   cur_input_att = (_set < 0) ? (-1 * _set) : 0;
@@ -182,6 +186,7 @@ void setup()
   Serial.begin(DEBUG_BAUD_COUNT);
 #endif
 
+#if USE_EXTERNAL_SOUND_SOURCE
   if (EEPROM.read(EEPROM_INDEX_FOR_VALIDATE_FLAG) != VALIDATE_FLAG)
   {
     // валидация данных в EEPROM
@@ -192,7 +197,6 @@ void setup()
     }
   }
 
-#if USE_EXTERNAL_SOUND_SOURCE
   pinMode(RLED_PIN, OUTPUT);
   pinMode(GLED_PIN, OUTPUT);
 
@@ -202,8 +206,18 @@ void setup()
 
   mp3Btn.setVirtualClickOn();
   mp3Btn.setTimeoutOfDblClick(100);
-  mp3Btn.setLongClickMode(LCM_CLICKSERIES);
-  mp3Btn.setIntervalOfSerial(500);
+  if (service_mode)
+  {
+    mp3Btn.setLongClickMode(LCM_CLICKSERIES);
+    mp3Btn.setIntervalOfSerial(500);
+    while (!digitalRead(BUTTON_PIN))
+    {
+      // если запустили сервисный режим, то ждем отпускания кнопки, чтобы не было ложных срабатываний
+      // не держите кнопку зажатой долго ))
+      ledsGuard();
+    }
+  }
+
 #endif
 
   tda7339_init();

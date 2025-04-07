@@ -18,13 +18,13 @@ constexpr uint8_t BUTTON_PIN = PIN_PD5; // пин для подключения 
 constexpr uint8_t RLED_PIN = PIN_PD6;   // пин для подключения красного светодиода
 constexpr uint8_t GLED_PIN = PIN_PD7;   // пин для подключения зеленого светодиода
 
+// ==== настройки EEPROM =============================
 constexpr uint16_t EEPROM_INDEX_FOR_INPUT_STATE = 10; // индекс в EEPROM для хранения текущего режима работы муз.центра - внутренний/внешний источник звука; uint8_t
-
-#endif
-
 constexpr uint16_t EEPROM_INDEX_FOR_SOUND_SETTINGS = 11; // индекс в EEPROM для хранения данных коррекции громкости звука для входов; uint8_t x 4
 constexpr uint16_t EEPROM_INDEX_FOR_VALIDATE_FLAG = 9;   // индекс в EEPROM для хранения флага о том, что параметры звука сохранены и записаны в EEPROM; uint8_t
 constexpr uint8_t VALIDATE_FLAG = 0X3F;                  // значение флага
+
+#endif
 
 constexpr int8_t MAX_ATT_DATA = -60; // предельное значение приглушения звука; -79..0
 constexpr int8_t MAX_GAIN_DATA = 15; // предельное значение предусиления звука; 0..15
@@ -88,8 +88,8 @@ struct ChangeSoundSettings
 
 #if USE_EXTERNAL_SOUND_SOURCE
 
-#include <shButton.h>
 #include <EEPROM.h>
+#include <shButton.h>
 
 shButton mp3Btn(BUTTON_PIN);
 
@@ -101,10 +101,10 @@ void changeInput4State();
 void checkButton();
 // управление светодиодами
 void ledsGuard();
+// настройка звука текущего входа - предусиление и аттеньюатор
+void changeSoundSettings(TDA7439_input _input, uint8_t _reset = 0);
 
 #endif
 
-// получение настроек звука для входа из EEPROM
+// получение настроек звука для входа
 void getSoundSettings(TDA7439_input _input);
-// настройка звука текущего входа - предусиление и аттеньюатор
-void changeSoundSettings(TDA7439_input _input, uint8_t _reset = 0);
