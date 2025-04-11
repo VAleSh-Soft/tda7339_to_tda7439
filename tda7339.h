@@ -13,11 +13,8 @@
 #define TDA7339_I2C_PORT Wire
 #endif
 
-#if TDA7339_I2C_PORT == Wire1
-#include <Wire1.h>
-#else
 #include <Wire.h>
-#endif
+#include <Wire1.h>
 
 #define TDA7339_MUTE 0x3F
 
@@ -35,7 +32,7 @@ void receiveEq();
 
 void tda7339_init(uint8_t _addr)
 {
-  tda7439.begin();
+  tda7439.begin(&TDA7439_I2C_PORT);
 
 #if USE_EXTERNAL_SOUND_SOURCE
   // активировать активный в момент отключения муз.центра источник звука - внешний (вход 4)/внутренний
@@ -108,7 +105,7 @@ void setNewInput(TDA7439_input _input)
 
   getSoundSettings(_input);
 
-  tda7439.setVolume(TDA7439_MUTE);
+  tda7439.setVolume(0);
   tda7439.setInput(_input);
   tda7439.setInputGain(cur_input_gain);
   tda7439.setSpeakerAtt(cur_input_att);
@@ -166,18 +163,22 @@ void receiveVolume()
   uint8_t y = TDA7339_I2C_PORT.read();
 
   // процессор муз.центра регулирует громкость двумя байтами - '1st Vol' и '2nd Vol' - одновременно, каждое может принимать значения 0..47, поэтому берем среднее значение от их суммы. В итоге получаем число от 0 до 47, как нам и нужно
-  if (!((x << 7) & 0x00) && !((y << 7) & 0x01)) // байты громкости имеют нулевые старшие биты
+  if (!((x >> 7) & 0x01) && !((y >> 7) & 0x01)) // байты громкости имеют нулевые старшие биты
   {
     TDA_PRINT(F("New volume set: "));
     // нулевые биты означают: 0 - 1st, 1 - 2nd, поэтому их отбрасываем
     tda7439_volume = ((x >> 1) + (y >> 1)) / 2;
-    if (tda7439_volume == TDA7339_MUTE)
+    if ((tda7439_volume == TDA7339_MUTE) || (tda7439_volume == 47))
     {
-      tda7439_volume = TDA7439_MUTE;
+      tda7439_volume = 0;
+    }
+    else
+    {
+      tda7439_volume = 47 - tda7439_volume;
     }
 
 #if USE_EXTERNAL_SOUND_SOURCE
-    if (tda7439_volume != TDA7439_MUTE)
+    if (tda7439_volume != 0)
     {
       tda7439_volume_in4 = tda7439_volume;
     }

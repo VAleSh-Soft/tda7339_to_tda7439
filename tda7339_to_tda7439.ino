@@ -12,7 +12,7 @@ void changeInput4State()
 
   if (!int_inputs_state)
   {
-    tda7439.setVolume(TDA7439_MUTE);
+    tda7439.setVolume(0);
     // выставляем средний уровень по всем полосам эквалайзера, пускай этим рулит внешний источник
     tda7439.setTimbre(0, 0, 0);
     // активируем четвертый вход
@@ -22,7 +22,7 @@ void changeInput4State()
   else
   {
     // активируем работу от внутренних источников звука
-    tda7439.setVolume(TDA7439_MUTE);
+    tda7439.setVolume(0);
     tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_trebble);
 
     setNewInput(tda7439_input);
