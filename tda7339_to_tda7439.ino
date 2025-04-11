@@ -1,6 +1,6 @@
 #include "header_file.h"
 #include "tda7339.h"
-#include "tda7439.h"
+#include <shTDA7439.h>
 #include "Arduino.h"
 
 // ===================================================
@@ -14,9 +14,7 @@ void changeInput4State()
   {
     tda7439.setVolume(TDA7439_MUTE);
     // выставляем средний уровень по всем полосам эквалайзера, пускай этим рулит внешний источник
-    tda7439.setTimbre(0, BASS);
-    tda7439.setTimbre(0, MIDDLE);
-    tda7439.setTimbre(0, TREBBLE);
+    tda7439.setTimbre(0, 0, 0);
     // активируем четвертый вход
     setNewInput(INPUT_4);
     TDA_PRINTLN(F("External sound source activated"));
@@ -25,9 +23,7 @@ void changeInput4State()
   {
     // активируем работу от внутренних источников звука
     tda7439.setVolume(TDA7439_MUTE);
-    tda7439.setTimbre(tda7439_bass, BASS);
-    tda7439.setTimbre(tda7439_middle, MIDDLE);
-    tda7439.setTimbre(tda7439_trebble, TREBBLE);
+    tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_trebble);
 
     setNewInput(tda7439_input);
 
@@ -153,7 +149,7 @@ void changeSoundSettings(TDA7439_input _input, uint8_t _reset)
   cur_input_att = (_set < 0) ? (-1 * _set) : 0;
 
   tda7439.setInputGain(cur_input_gain);
-  tda7439.spkAtt(cur_input_att);
+  tda7439.setSpeakerAtt(cur_input_att);
 
   TDA_PRINT(F("New Input Gain: "));
   TDA_PRINTLN(cur_input_gain);
@@ -220,7 +216,7 @@ void setup()
 
 #endif
 
-  tda7339_init();
+  tda7339_init(TDA7339_I2C_ADDRESS);
 
   TDA_PRINTLN(F("Start device"));
   TDA_PRINTLN();

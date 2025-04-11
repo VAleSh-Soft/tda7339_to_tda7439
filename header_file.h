@@ -1,5 +1,5 @@
 #pragma once
-#include "tda7439.h"
+#include <shTDA7439.h>
 
 // ==== общие настройки ==============================
 
@@ -10,6 +10,8 @@
 
 #define TDA7339_I2C_PORT Wire  // I2C-интефейс для получения команд от центрального процессора
 #define TDA7439_I2C_PORT Wire1 // I2C-интефейс для работы с tda7439
+
+#define TDA7339_I2C_ADDRESS 0x42 // адрес tda7339 на шине I2C
 
 #if USE_EXTERNAL_SOUND_SOURCE
 // ==== пины для подключения обвязки mp3-модуля ======
@@ -52,7 +54,7 @@ const int8_t sound_data[4] = {-30, -15, -15, -15};
 
 // ===================================================
 
-TDA7439 tda7439;
+shTDA7439 tda7439;
 
 TDA7439_input tda7439_input = INPUT_1;
 uint8_t tda7439_volume = 15;

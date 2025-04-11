@@ -7,7 +7,7 @@
 #pragma once
 
 #include "header_file.h"
-#include "tda7439.h"
+#include <shTDA7439.h>
 
 #ifndef TDA7339_I2C_PORT
 #define TDA7339_I2C_PORT Wire
@@ -43,9 +43,7 @@ void tda7339_init(uint8_t _addr)
   changeInput4State();
 #else
   // при старте установка эквалайзера - rock
-  tda7439.setTimbre(4, BASS);
-  tda7439.setTimbre(-1, MIDDLE);
-  tda7439.setTimbre(3, TREBBLE);
+  tda7439.setTimbre(4, -1, 3);
 
   setNewInput(INPUT_1);
 #endif
@@ -86,9 +84,7 @@ void tda7339_tick()
     if (int_inputs_state)
 #endif
     {
-      tda7439.setTimbre(tda7439_trebble, TREBBLE);
-      tda7439.setTimbre(tda7439_middle, MIDDLE);
-      tda7439.setTimbre(tda7439_bass, BASS);
+      tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_trebble);
     }
     tda7439_output = NO_SET;
     return;
@@ -103,7 +99,7 @@ void setNewInput(TDA7439_input _input)
 
 #if USE_EXTERNAL_SOUND_SOURCE
   changeSoundSettings(_input, 2);
-  
+
   if (_input == INPUT_4)
   {
     _vol = tda7439_volume_in4;
@@ -113,9 +109,9 @@ void setNewInput(TDA7439_input _input)
   getSoundSettings(_input);
 
   tda7439.setVolume(TDA7439_MUTE);
-  tda7439.setInputGain(cur_input_gain);
-  tda7439.spkAtt(cur_input_att);
   tda7439.setInput(_input);
+  tda7439.setInputGain(cur_input_gain);
+  tda7439.setSpeakerAtt(cur_input_att);
   tda7439.setVolume(_vol);
 }
 
@@ -149,7 +145,7 @@ void receiveEvent(int howMany)
 void receiveInput()
 {
   uint8_t x = TDA7339_I2C_PORT.read();
-  if (x >> 5 == 0x07)
+  if (x >> 5 == 0x07) // байт номера входа имеет три старших бита 111
   {
     x = x << 4;
     x = x >> 6;
@@ -170,9 +166,10 @@ void receiveVolume()
   uint8_t y = TDA7339_I2C_PORT.read();
 
   // процессор муз.центра регулирует громкость двумя байтами - '1st Vol' и '2nd Vol' - одновременно, каждое может принимать значения 0..47, поэтому берем среднее значение от их суммы. В итоге получаем число от 0 до 47, как нам и нужно
-  if (!((x << 7) & 0x00) && !((y << 7) & 0x01))
+  if (!((x << 7) & 0x00) && !((y << 7) & 0x01)) // байты громкости имеют нулевые старшие биты
   {
     TDA_PRINT(F("New volume set: "));
+    // нулевые биты означают: 0 - 1st, 1 - 2nd, поэтому их отбрасываем
     tda7439_volume = ((x >> 1) + (y >> 1)) / 2;
     if (tda7439_volume == TDA7339_MUTE)
     {
@@ -197,6 +194,7 @@ void receiveVolume()
 
 static void _setEq(uint8_t e)
 {
+  // байты тембра имеют старшие биты: 100 - trebble, 101 - middle, 110 - bass
   uint8_t band = e >> 5;
   e = e << 3;
   e = e >> 3;
