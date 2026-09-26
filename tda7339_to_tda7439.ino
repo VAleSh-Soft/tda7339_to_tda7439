@@ -23,7 +23,7 @@ void changeInput4State()
   {
     // активируем работу от внутренних источников звука
     tda7439.setVolume(0);
-    tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_trebble);
+    tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_treble);
 
     setNewInput(tda7439_input);
 

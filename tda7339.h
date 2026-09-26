@@ -81,7 +81,7 @@ void tda7339_tick()
     if (int_inputs_state)
 #endif
     {
-      tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_trebble);
+      tda7439.setTimbre(tda7439_bass, tda7439_middle, tda7439_treble);
     }
     tda7439_output = NO_SET;
     return;
@@ -195,7 +195,7 @@ void receiveVolume()
 
 static void _setEq(uint8_t e)
 {
-  // байты тембра имеют старшие биты: 100 - trebble, 101 - middle, 110 - bass
+  // байты тембра имеют старшие биты: 100 - treble, 101 - middle, 110 - bass
   uint8_t band = e >> 5;
   e = e << 3;
   e = e >> 3;
@@ -205,7 +205,7 @@ static void _setEq(uint8_t e)
   {
   case 0x04:
     TDA_PRINT(F("  treble: - "));
-    tda7439_trebble = x;
+    tda7439_treble = x;
     break;
   case 0x05:
     TDA_PRINT(F("  middle: - "));
